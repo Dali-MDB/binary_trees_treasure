@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1714687798 source:d:\projects\td_alsds\s2\serie_5(tress)\tp_z_try\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<time.h>
+	<unistd.h>
+	<malloc.h>
+	<windows.h>
+

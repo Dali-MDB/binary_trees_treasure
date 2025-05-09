@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1720103877 source:d:\projects\td_alsds\s2\serie_5(tress)\lls_of_nodes_at_the_same_level\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+

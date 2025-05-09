@@ -1,0 +1,30 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def pseudoPalindromicPaths (self, root: Optional[TreeNode]) -> int:
+        def ppp(R,D):
+            if R is None:
+                return 0
+
+            cpy = dict(D)   #a copy of the dictionnary
+            try:
+                cpy[R.val] +=1   #increment the counter by 1
+            except:   #first time seeing this number
+                cpy[R.val] = 1
+
+            if not R.left and not R.right:   # leaf
+                odd = 0
+                for V in cpy.values():
+                    if V % 2 == 1:
+                        odd +=1
+                    if odd > 1:
+                        return 0   #not a psuedo p
+                return 1    #is a psuedo p
+            else:   #a normal node
+                return ppp(R.left,cpy) + ppp(R.right,cpy)
+
+        return ppp(root,{})

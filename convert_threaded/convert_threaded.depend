@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1719416218 source:d:\projects\td_alsds\s2\serie_5(tress)\convert_threaded\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	<stdbool.h>
+

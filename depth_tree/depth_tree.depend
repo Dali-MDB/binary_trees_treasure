@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1714146653 source:d:\projects\td_alsds\s2\serie_5(tress)\depth_tree\main.c
+	<stdio.h>
+	<stdlib.h>
+	"../trees_lib.h"
+	<malloc.h>
+	<math.h>
+	<stdbool.h>
+
+1714146766 d:\projects\td_alsds\s2\serie_5(tress)\trees_lib.h
+

@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1714144401 source:d:\projects\td_alsds\s2\serie_5(tress)\sum_prod_tree\main.c
+	<stdio.h>
+	<stdlib.h>
+	"../trees_lib.h"
+	<malloc.h>
+
+1714144578 d:\projects\td_alsds\s2\serie_5(tress)\trees_lib.h
+

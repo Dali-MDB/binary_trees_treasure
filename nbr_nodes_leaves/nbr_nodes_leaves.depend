@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1714142878 source:d:\projects\td_alsds\s2\serie_5(tress)\nbr_nodes_leaves\main.c
+	<stdio.h>
+	<stdlib.h>
+	<malloc.h>
+	"../trees_lib.h"
+
+1714142939 d:\projects\td_alsds\s2\serie_5(tress)\trees_lib.h
+

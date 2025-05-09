@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1719930977 source:d:\projects\td_alsds\s2\serie_5(tress)\from_preorder_leafe_info\main.c
+	<stdio.h>
+	<stdlib.h>
+	"../trees_lib.h"
+	<stdbool.h>
+
+1719845217 d:\projects\td_alsds\s2\serie_5(tress)\trees_lib.h
+	<stdbool.h>
+	<windows.h>
+	<limits.h>
+

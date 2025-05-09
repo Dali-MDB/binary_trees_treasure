@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1719585429 source:d:\projects\td_alsds\s2\serie_5(tress)\binary_expression_tree\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<windows.h>
+	<stdbool.h>
+

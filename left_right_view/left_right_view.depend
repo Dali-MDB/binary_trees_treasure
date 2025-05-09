@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1722094250 source:d:\projects\td_alsds\s2\serie_5(tress)\left_right_view\main.c
+	<stdio.h>
+	<stdlib.h>
+	"../trees_lib.h"
+
+1722092968 d:\projects\td_alsds\s2\serie_5(tress)\trees_lib.h
+	<stdbool.h>
+	<limits.h>
+	<windows.h>
+

@@ -1,0 +1,1147 @@
+#ifndef TREES_LIB_H_INCLUDED
+#define TREES_LIB_H_INCLUDED
+
+#include <stdbool.h>
+#include <limits.h>
+#include <windows.h>
+void Textecolor(int ForgC)
+{
+    WORD wColor;
+
+    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+    // We use csbi for the wAttributes word.
+    if (GetConsoleScreenBufferInfo(hStdOut, &csbi))
+    {
+        // Mask out all but the background attribute, and add in the forgournd color
+        wColor = (csbi.wAttributes & 0xF0) + (ForgC & 0x0F);
+        SetConsoleTextAttribute(hStdOut, wColor);
+    }
+    return;
+}
+// Texte couleur et fond:
+void Color(int couleurdutexte, int couleurdufond)
+{
+
+    HANDLE H = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(H, couleurdufond * 16 + couleurdutexte);
+}
+typedef struct node{
+   int val;
+   struct node *left,*right;
+
+}node;
+
+typedef struct node* ptr;
+
+ptr new_node(int V){
+   ptr N = (ptr) malloc(sizeof(node));
+   N->left = NULL;
+   N->right = NULL;
+   N->val = V;
+   return N;
+
+}
+
+int data(ptr R){
+   return R->val;
+}
+
+ptr LC(ptr R){
+   return R->left;
+}
+
+ptr RC(ptr R){
+   return R->right;
+}
+
+void ass_LC(ptr* R, ptr Q) {
+    if (R != NULL && *R != NULL && (*R)->left == NULL) {
+        (*R)->left = Q;
+    }
+}
+
+void ass_RC(ptr* R, ptr Q) {
+    if (R != NULL && *R != NULL && (*R)->right == NULL) {
+        (*R)->right = Q;
+    }
+}
+
+void ass_data(ptr* R , int V){
+    (*R)->val = V;
+}
+
+
+typedef struct cell{
+   ptr value;
+   struct cell* next;
+}cell;
+
+typedef struct cell* ptr_cell ;
+
+ptr_cell allocate(){
+   return (ptr_cell) malloc(sizeof(cell));
+}
+
+void ass_val(ptr_cell P,ptr val){
+    P->value = val;
+ }
+
+void ass_adr(ptr_cell P , ptr_cell Q){
+    P->next = Q;
+ }
+
+ptr val(ptr_cell P){
+   return P->value;
+}
+
+ptr next(ptr_cell P){
+   return P->next;
+}
+
+typedef struct stack{
+    ptr_cell Head;
+}stack;
+
+bool empty_stack(stack P){
+   return P.Head == NULL;
+}
+
+void create_stack(stack* P){
+   P->Head = NULL;
+}
+
+void push(stack* S , ptr X){
+   ptr_cell P= allocate();
+   ass_val(P,X);
+   ass_adr(P,S->Head);
+   S->Head = P;
+
+}
+
+void pop(stack * S ,ptr* X){
+    if(!empty_stack(*S)){
+       ptr_cell save;
+       save = S->Head;
+       S->Head = next(S->Head);
+       *X = val(save);
+       free(save);
+   }
+}
+
+
+typedef struct queue{
+    ptr_cell Head;
+    ptr_cell Tail;
+}queue;
+
+
+void create_queue(queue* Q){
+     Q->Head = Q->Tail = NULL;
+}
+bool empty_queue(queue Q){
+    return Q.Tail  == NULL;
+}
+
+void enqueue(queue* Q , ptr X){
+   ptr_cell P = allocate();
+   ass_val(P,X);
+   ass_adr(P,NULL);
+   if(empty_queue(*Q)){
+      Q->Head = Q->Tail = P;
+   }
+   else{
+       Q->Tail->next = P;
+       Q->Tail = P;  ///we update the tail
+   }
+
+}
+
+void dequeue(queue* Q, ptr* X){
+    if(!empty_queue(*Q)){
+       ptr_cell save;
+       save = Q->Head;
+       Q->Head = Q->Head->next;   ///update the head
+       *X = val(save);
+       free(save);
+
+       ///particular case (one element)
+       if(Q->Head == NULL)
+          Q->Tail =  NULL;
+    }
+
+
+}
+
+
+
+void displayTree(ptr root, int space, char direction)
+{
+    const int COUNT = 10;
+
+    Textecolor(14);
+    // Base case
+    if (root == NULL)
+        return;
+
+    // Increase distance between levels
+    space += COUNT;
+
+    int Value  =  data(root);
+
+    ///RC first
+    displayTree(RC(root), space, '/'); // For right child, direction is '/'
+
+    // Print current node after space count
+    printf("\n");
+    for (int i = COUNT; i < space; i++)
+        printf(" ");
+
+    Textecolor(14);
+    printf("%c(", direction);
+
+
+    Textecolor(11);
+    printf("%d",Value);
+    Textecolor(14);
+
+
+
+    if((LC(root) !=NULL) && (RC(root) != NULL)){
+        printf(")<\n");
+    }
+    else if (LC(root) != NULL ){ //RC == NULL
+        printf(")\\\n");
+    }
+    else if(RC(root) != NULL){ //LC == NULL
+        printf(")/\n");
+    }
+    else{ //a leaf
+        printf(")=E\n");
+    }
+
+    ///LC
+    displayTree(LC(root), space, '\\'); // For left child, direction is '\'
+}
+
+
+int count_Nodes_tree(ptr R){
+   //base case
+   if(R==NULL)
+     return 0;
+   else
+     return 1 + count_Nodes_tree(LC(R)) + count_Nodes_tree(RC(R));
+
+
+}
+
+int count_Leaves_tree(ptr R){
+   if(R==NULL)
+     return 0 ;
+   else{
+      if (LC(R) == NULL && RC(R) == NULL)  //is a leaf
+        return 1;
+      else
+        return count_Leaves_tree(LC(R)) + count_Leaves_tree(RC(R));
+   }
+
+}
+
+int SumTree(ptr R){
+    if (R == NULL)
+        return 0;
+    else
+        return data(R) + SumTree(LC(R)) + SumTree(RC(R));
+}
+
+int ProdTree(ptr R){
+    if (R == NULL)
+        return 1;
+    else
+        return data(R) * ProdTree(LC(R)) * ProdTree(RC(R));
+}
+
+int Max(int a, int b){
+   if (a > b)
+     return a;
+   else
+     return b;
+}
+
+int depthTree(ptr R){
+   if (R == NULL)
+      return -1;
+   else
+     return 1 + Max(depthTree(LC(R)), depthTree(RC(R)));
+}
+
+ptr minTree(ptr R){
+  if(R == NULL)
+    return NULL;
+  else{
+    if(LC(R) == NULL)  // no left sub-tree
+       return R;
+    else
+       return minTree(LC(R));   // we search in the left sub-tree
+  }
+}
+
+ptr maxTree(ptr R){
+  if(R == NULL)
+    return NULL;
+  else{
+    if(RC(R) == NULL)  // no right sub-tree
+       return R;
+    else
+       return maxTree(RC(R));   // we search in the right sub-tree
+  }
+}
+
+ptr searchTree(ptr R , int V){
+   if(R == NULL)
+      return NULL;
+   else if ( data(R) ==  V)
+      return R;
+   else{
+     if(data(R) > V) //we search in the left sub tree
+        searchTree(LC(R),V);
+     else //right sub tree
+        searchTree(RC(R),V);
+   }
+
+}
+
+ptr insertTree(ptr R , int V){
+  ptr N;
+  char answer;
+  char c;
+
+  if(R==NULL){
+    return new_node(V);
+  }
+  else{
+    if(data(R) > V){
+L:      R->left = insertTree(LC(R),V);   //we modify the left sub tree and return it
+    }
+    else if (data(R) < V){
+R:      R->right=insertTree(RC(R),V);    //we modify the right sub tree and return it
+    }
+    else{ /// = already exists
+        printf("the value you want to insert already exists \ndo you want to duplicate it anyways ?(y/n)  :  ");
+        scanf("%c",&answer);
+        if (tolower(answer) == 'y'){
+            printf("do you want to insert it on the left (L) or on the right (R)  :  ");
+            scanf(" %c",&answer);
+            if (toupper(answer) ==  'L')
+                goto L;
+            else
+                goto R;
+
+        }
+    }
+
+    return R;    ///either modified or not (returned as a sub tree of the calling parent node)
+
+  }
+
+
+}
+
+ptr deleteTree(ptr R , int V){
+
+    ptr temp;
+    if (R == NULL)
+     return NULL;
+
+    if (data(R) == V){ //either leaf or one child or two children
+
+     if(LC(R) == NULL && RC(R) == NULL){ ///leaf
+        free(R);
+        R = NULL;
+     }
+     else if(LC(R) == NULL){     ///one kid
+        temp = R;
+        R = RC(R);    //the right sub tree will replace this node
+        free(temp);
+     }
+     else if(RC(R) == NULL){    ///one kid
+        temp = R;
+        R = LC(R);
+        free(temp);
+     }
+     else{ ///both children non null
+        temp = minTree(RC(R));    //we search for the smallest element in the right sub tree
+        R->val = data(temp);   ///we replace the value with the data of the min leaf
+        R->right = deleteTree(RC(R),data(temp));   ///we delete the leaf from the right sub tree
+     }
+   }
+   else{//we keep searching in the two sub trees
+     if(data(R) > V)
+        R->left = deleteTree(LC(R),V);
+     else
+        R->right = deleteTree(RC(R),V);
+   }
+
+
+   return R;    ///we return the node either modified or not to be passed as a sub tree for the calling parent node
+
+
+}
+
+bool existTree(ptr R , int V){
+  if (R==NULL)
+    return false;
+
+  if(data(R) == V)
+     return true ;
+  else{
+    if (data(R) > V)
+        return existTree(LC(R),V);   //we search in the left sub tree
+    else
+        return existTree(RC(R),V);   //we search in the right sub tree
+  }
+}
+ptr closestAncestorTree(ptr R , int V1 , int V2){
+   if(R==NULL)
+     return NULL;
+
+   if(existTree(R,V1) && existTree(R,V2)){
+       if(!(existTree(LC(R),V1) && existTree(LC(R),V2)) && !(existTree(RC(R),V1) && existTree(RC(R),V2)))
+           return R;     ///the left child isn't a common ancestor and so is the right child
+       else{  ///we search either in LC or RC
+           if(existTree(LC(R),V1) && existTree(LC(R),V2))  //LC is a common parent
+              return closestAncestorTree(LC(R),V1,V2) ;
+           else /// (existTree(RC(R),V1) && existTree(RC(R),V2))  //RC is a common parent
+              return closestAncestorTree(RC(R),V1,V2);
+
+       }
+
+   }else { //V1 and V2 don't both exist
+       printf("one or two of the values you provided don't exist");
+       return NULL;
+   }
+
+
+}
+
+bool is_strictBin(ptr R){
+  if(R == NULL)
+     return true;
+
+  if((LC(R) == NULL && RC(R) != NULL ) || (RC(R)==NULL && LC(R) != NULL))   //one child
+      return false;
+  else
+      return is_strictBin(LC(R)) && is_strictBin(RC(R));
+
+
+}
+
+bool is_completeTree(ptr R){
+   if (R==NULL)
+      return true;
+   else{
+     if(depthTree(LC(R)) != depthTree(RC(R)) || !is_strictBin(R))
+        return false;
+     else
+        return is_completeTree(LC(R)) && is_completeTree(RC(R));
+
+   }
+
+}
+ptr left_most_leaf(ptr R){
+   if(R==NULL)
+      return NULL;
+
+   if(LC(R) == NULL){
+      if(RC(R) == NULL)  //the it's a leaf
+        return R;
+      else
+        return left_most_leaf(RC(R));   //we search in the right sub tree since the left one is null
+   }
+   else{
+      return left_most_leaf(LC(R));
+   }
+
+}
+
+ptr right_most_leaf(ptr R){
+   if(R==NULL)
+      return NULL;
+
+   if(RC(R) == NULL){
+      if(LC(R) == NULL)  //the it's a leaf
+        return R;
+      else
+        return right_most_leaf(LC(R));   //we search in the right sub tree since the left one is null
+   }
+   else{
+      return right_most_leaf(RC(R));
+   }
+
+}
+
+bool identicalTrees(ptr R1 , ptr R2 ){
+   if(R1 == NULL  && R2 == NULL)
+      return true ;
+   else if ( (R1==NULL && R2 != NULL ) || (R2 == NULL && R1!= NULL))
+      return false;
+   else{ ///both are non null
+      if(data(R1) != data(R2))
+          return false;
+      else //identical nodes , so we check the sub trees
+        return identicalTrees(LC(R1),LC(R2)) && identicalTrees(RC(R1),RC(R2));
+
+   }
+}
+
+int convSumTree(ptr R){
+   if(R==NULL)
+     return 0;
+
+   else{
+     int Left = convSumTree(LC(R));
+     int Right = convSumTree(RC(R));
+     int old = data(R);    //we save the old value cuz it will be included in the sum for the parent node
+
+     R->val = Left + Right;
+     return old + data(R);
+}
+
+}
+
+bool isParentTree(ptr R , int V){
+   if(R==NULL)
+      return false;
+   else{
+      if((LC(R) != NULL && data(LC(R)) == V) || (RC(R) != NULL && data(RC(R)) == V ))
+         return true;
+      else
+         return false;
+
+   }
+
+
+}
+bool areCousinsTree(ptr R,int V1, int V2){
+    if(R==NULL)
+        return false;
+
+    if(isParentTree(R,V1) && isParentTree(R,V2)) ///siblings
+        return false;
+    else{
+        ptr Left = LC(R);
+        ptr Right = RC(R);
+
+        if ( ( isParentTree(Left,V1) && isParentTree(Left,V2)) || ( isParentTree(Right,V1) && isParentTree(Right,V2)))
+            return false;    //siblings
+        else if ( (isParentTree(Left,V1) && isParentTree(Right,V2)) || (isParentTree(Left,V2) && isParentTree(Right,V1)) )
+            return true ;  ///cousins
+        else //we check the sub trees
+            return areCousinsTree(Left,V1,V2) || areCousinsTree(Right,V1,V2);
+    }
+
+
+}
+
+void cousinsInTree(ptr R){
+  if (R==NULL)
+    return;
+
+  if(LC(R) == NULL && RC(R) == NULL)
+     return;
+  else{ //both or one of them is not NULL
+     if (LC(R) == NULL )  ///then RC isn't NULL
+        cousinsInTree(RC(R));
+     else if (RC(R) == NULL )  ///then LC isn't NULL
+        cousinsInTree(LC(R));
+     else{/// both non null then we can find cousins
+        if ( (LC(LC(R)) != NULL || RC(LC(R)) != NULL) && (LC(RC(R)) != NULL || RC(RC(R)) != NULL) )  ///to assure there are cousins
+        {
+            if(LC(LC(R)) != NULL )
+                printf("%d",data(LC(LC(R))));
+
+            if(RC(LC(R)) != NULL )
+                printf("   %d",data(RC(LC(R))));
+
+            printf("    cousins of :  ");
+
+            if(LC(RC(R)) != NULL )
+                printf("%d",data(LC(RC(R))));
+
+            if(RC(RC(R)) != NULL )
+                printf("   %d",data(RC(RC(R))));
+
+            printf("\n");   //to prepare for the next xousins
+
+            ///now we verify the sub tres
+            cousinsInTree(LC(R));
+            cousinsInTree(RC(R));
+
+        }
+
+     }
+
+     return;
+
+  }
+
+
+
+}
+
+bool isSumTree(ptr R){
+   if(R==NULL)
+      return true;
+
+   if (LC(R) == NULL && RC(R) == NULL)
+      return true;
+   else{
+     if(data(R) != (SumTree(LC(R)) + SumTree(RC(R)) ))
+        return false;
+     else //the node itself is verifies so we check the subtrees
+        return  isSumTree(LC(R)) && isSumTree(RC(R));
+
+   }
+
+}
+
+bool isSubTree(ptr R, ptr SR){
+   if(SR == NULL)
+     return true;    //the null tree is a sub tree of all trees
+
+   if(R==NULL)
+     return false;
+
+
+   if(identicalTrees(R,SR))
+      return true ;
+   else //we check sub trees
+      return isSubTree(LC(R),SR) || isSubTree(RC(R),SR);
+
+
+}
+
+bool is_Mirror_Tree(ptr R1,ptr R2){
+   if(R1 == NULL && R2 == NULL)
+      return true;
+
+   if((R1==NULL && R2 != NULL) || (R2 == NULL && R1 != NULL))  //different sons
+      return false;
+
+   else{ //both are non null
+      if(data(R1) != data(R2))
+          return false;   //different nodes , no need to check for sub trees
+      else
+          return is_Mirror_Tree(LC(R1),RC(R2)) && is_Mirror_Tree(RC(R1),LC(R2));
+
+   }
+
+}
+
+bool is_Symetrical_Tree(ptr R){
+    if(R==NULL)
+        return true;
+    else  //we can check the sub trees
+        return is_Mirror_Tree(LC(R),RC(R));    ///no need to worry about NULL state or data cuz it will be handled within mirror
+
+
+}
+
+ptr conv_Mirror_Tree(ptr R1,ptr R2){   //convert R1 into R2 as a mirror
+    if(R1 == NULL)
+        return NULL;
+
+    else{
+        R2 = new_node(data(R1));    ///first we create the node with the same data
+        R2->left = conv_Mirror_Tree(RC(R1),LC(R2));
+        R2->right = conv_Mirror_Tree(LC(R1),RC(R2));
+
+        return R2;   //after modification we return it as a parent of the calling parent
+    }
+
+
+}
+
+bool convertable_by_swaps(ptr R1,ptr R2){
+   if(R1==R2)  ///NULL
+      return true;
+   else if ((R1 == NULL && R2 != NULL) || (R2 == NULL && R1 != NULL))
+      return false;
+   else{ //both non null
+      if(data(R1) != data(R2))
+         return false;
+      else
+         return  (convertable_by_swaps(LC(R1),LC(R2)) && convertable_by_swaps(RC(R1),RC(R2))) ||
+                 (convertable_by_swaps(LC(R1),RC(R2)) && convertable_by_swaps(RC(R1),LC(R2)));
+
+   }
+
+
+}
+
+ptr search_no_0_tree(ptr R){
+   if(R==NULL || data(R) != 0)
+     return R;
+   else{
+     ptr L = search_no_0_tree(LC(R));
+     if(L!=NULL)
+        return L;
+     else
+        return search_no_0_tree(RC(R));
+   }
+
+}
+
+int max_sum_path(ptr R,int current){    ///not necessarily a bst
+   if(R==NULL){    //empty tree or node
+       return current;
+   }
+   else{
+       current += data(R);
+       return Max(max_sum_path(LC(R),current),max_sum_path(RC(R),current));
+   }
+
+}
+
+void identify_leaves_LR(ptr R , int L[100] , int *leaves){
+    if(R!=NULL){
+        if(LC(R) == NULL && RC(R) == NULL){///a leaf
+            L[*leaves] = data(R);
+            (*leaves)++;
+        }
+        identify_leaves_LR(LC(R),L,leaves);
+        identify_leaves_LR(RC(R),L,leaves);
+    }
+}
+
+int TreeLength(ptr R){
+   if(R==NULL)
+      return 0;
+   else
+      return 1+Max(TreeLength(LC(R)),TreeLength(RC(R)));
+}
+
+int node_balance(ptr R){
+    if(R==NULL)
+        return 0;
+    else{
+        return (TreeLength(LC(R))-TreeLength(RC(R)));
+    }
+
+}
+
+bool is_AVL_Tree(ptr R){
+    if(R==NULL)
+        return true;
+    else{
+        int balance = node_balance(R);
+
+        if(abs(balance)>1)
+            return false;
+        else
+            return (is_AVL_Tree(LC(R)) && is_AVL_Tree(RC(R)));
+    }
+
+}
+
+ptr closest_right_sibling(ptr root, ptr R) {
+    ptr N = root;
+    stack S;
+
+    ///the first phase consists of identifying the node
+    create_stack(&S);
+    while (N != R && N != NULL) {  //till we reach the node or both null
+        push(&S, N);
+        if (data(R) < data(N))
+            N = LC(N);
+        else
+            N = RC(N);
+    }
+
+
+    ///now we search for the closest sibling
+    bool found = false;
+    int level, save_level = 0;
+    ptr temp;
+    ptr current = R ;
+    ///R level is the reference ( 0 )
+
+    while (!empty_stack(S) && !found) {
+        pop(&S, &N);
+        save_level--;
+        level = save_level;
+        temp = NULL;
+        ///we only search if we ascended from the left (so we don't return to the same node)
+
+        if (current != RC(N)) {
+            temp = RC(N);  //of the parent
+            level++;   ///cuz we ascended by one node
+
+            while ((level != 0) && (temp != NULL)) {  //we get the closes node at the same level of R (0)
+                if (LC(temp) != NULL)
+                    temp = LC(temp);
+                else//no lc so we move to the right
+                    temp = RC(temp);
+
+                level++;
+            }
+        }
+
+         ///now we check the result of quiting the inner loop
+        if (level == 0 && temp != NULL) {
+            found = true;
+            return temp;
+        }
+
+        current = N;   //for the next ancestor
+    }
+
+     // if(!found || empty_stack(S))
+    return NULL;
+}
+void convert_to_LC_Tree(ptr root ,ptr R){
+   //we perfom postorder traversal so we don't lose links between nodes
+   if(R!= NULL){
+      convert_to_LC_Tree(root,LC(R));
+      convert_to_LC_Tree(root,RC(R));
+      ///now the current node
+
+
+      ptr P = closest_right_sibling(root,R);
+      R->right = P;
+
+
+   }
+
+
+}
+
+ptr closest_left_sibling(ptr root, ptr R) {
+    ptr N = root;
+    stack S;
+
+    ///the first phase consists of identifying the node
+    create_stack(&S);
+    while (N != R && N != NULL) {  //till we reach the node or both null
+        push(&S, N);
+        if (data(R) < data(N))
+            N = LC(N);
+        else
+            N = RC(N);
+    }
+
+
+    ///now we search for the closest sibling
+    bool found = false;
+    int level, save_level = 0;
+    ptr temp;
+    ptr current = R ;
+    ///R level is the reference ( 0 )
+
+    while (!empty_stack(S) && !found) {
+        pop(&S, &N);
+        save_level--;
+        level = save_level;
+        temp = NULL;
+        ///we only search if we ascended from the left (so we don't return to the same node)
+
+        if (current != LC(N)) {
+            temp = LC(N);  //of the parent
+            level++;   ///cuz we ascended by one node
+
+            while ((level != 0) && (temp != NULL)) {  //we get the closes node at the same level of R (0)
+                if (RC(temp) != NULL)
+                    temp = RC(temp);
+                else//no rc so we move to the left
+                    temp = LC(temp);
+
+                level++;
+            }
+        }
+
+         ///now we check the result of quiting the inner loop
+        if (level == 0 && temp != NULL) {
+            found = true;
+            return temp;
+        }
+
+        current = N;   //for the next ancestor
+    }
+
+     // if(!found || empty_stack(S))
+    return NULL;
+}
+
+
+void convert_to_RC_Tree(ptr root ,ptr R){
+   //we perfom postorder traversal so we don't lose links between nodes
+   if(R!= NULL){
+      convert_to_RC_Tree(root,RC(R));
+      convert_to_LC_Tree(root,LC(R));
+      ///now the current node
+
+
+      ptr P = closest_left_sibling(root,R);
+      R->left = P;
+
+
+   }
+
+
+}
+
+
+bool is_leaf(ptr R){
+   if(R==NULL)
+      return false;
+   else{
+      if(LC(R)==NULL && RC(R)==NULL)
+          return true;
+      else
+          return false;
+   }
+
+}
+
+bool get_path(ptr R ,ptr N, stack* S){
+    if(R==NULL)
+        return false;
+    else{
+        push(S,R);
+        if(data(R) == data(N))
+             return true;
+        else{
+            if(get_path(LC(R),N,S) || get_path(RC(R),N,S)) ///exists in one of the subtrees
+                return true;
+            else{
+                pop(S,R);    ///cuz it's not of this path, so we remove it from the path when returning to its par
+                return false;
+            }
+        }
+    }
+
+}
+
+ptr next_inorder(ptr R,stack PATH){
+
+    if(R==NULL)
+        return NULL;
+
+    if(RC(R) != NULL){
+        R=RC(R);
+        while(LC(R) != NULL)  ///we reach the min node
+            R = LC(R);
+
+        return R;
+    }
+    else{  ///we ascend
+        ptr Par = NULL;
+        if(!(empty_stack(PATH)))
+            pop(&PATH,&Par);
+
+        while(!empty_stack(PATH) && RC(Par) == R){  ///we ascended from the right
+            R = Par;
+            pop(&PATH,&Par);
+        }
+
+        return Par;
+
+    }
+
+
+}
+
+ptr next_preorder(ptr R,stack PATH){
+     if(R==NULL)
+        return NULL;
+
+     if(LC(R) != NULL)
+          return LC(R);
+     else if(RC(R) != NULL)
+          return RC(R);
+     else{//both null
+        ptr Par = NULL;
+        if(!(empty_stack(PATH)))
+            pop(&PATH,&Par);
+
+        while(!empty_stack(PATH) && RC(Par) == R){  ///we ascended from the right
+            R = Par;
+            pop(&PATH,&Par);
+        }
+
+        if(Par == NULL)
+             return Par;
+        else
+             return RC(Par);
+
+
+     }
+
+}
+
+ptr next_postorder(ptr R,stack PATH){
+    if(R==NULL)
+        return NULL;
+
+    ptr Par=NULL;
+    pop(&PATH,&Par);
+    if(Par == NULL || RC(Par) == R || RC(Par) == NULL) //R is the root || ascended from the right || from left but no lc
+        return Par;
+    else{//ascended from the left and rc esists
+        R = RC(Par)    ;
+        while(LC(R) != NULL)
+             R=LC(R);
+             return R;
+
+    }
+
+
+}
+
+void boundary_traversal(ptr R){
+    ///boundary traversal is determined by the leaves and path between the root and leftmost and rightmost leaves
+    int T[100],size=0;
+    identify_leaves_LR(R,T,&size);
+
+    stack S_left;
+    stack S_right,S_left_reversed;
+    create_stack(&S_left);     create_stack(&S_right);
+
+    ptr left_most = left_most_leaf(R);
+    ptr right_most = right_most_leaf(R);
+
+    bool sily_boolean = get_path(R,left_most,&S_left);    //the path to the leftmost leaf
+
+    ///we need to traverse from the root to the left most leaf
+    create_stack(&S_left_reversed);
+    ptr temp;
+    while(!empty_stack(S_left)){
+        pop(&S_left,&temp);
+       // printf(" %d ",data(temp));
+        push(&S_left_reversed,temp);
+    }
+
+    //now we display from root to left most leaf
+    while(!empty_stack(S_left_reversed)){
+        pop(&S_left_reversed,&temp);
+        printf(" %d ",data(temp));
+    }
+
+    //from leftmost to rightmost excluding em
+    int i;
+    for(i=1;i<size-1;i++){
+        printf(" %d ",T[i]);
+    }
+
+
+
+    //from rightmost to root
+
+    sily_boolean = get_path(R,right_most,&S_right);   //the path to the rightmost leaf
+
+    while(!empty_stack(S_right)){
+        pop(&S_right,&temp);
+        if(temp != R) ///we make sure not to display the root again
+            printf(" %d ",data(temp));
+    }
+
+}
+
+bool is_BST(ptr R,int minimum,int maximum){
+   if(R==NULL)
+       return true;
+
+   if(LC(R) != NULL && data(LC(R))>data(R))
+       return false;
+
+   if(RC(R) != NULL && data(RC(R))<data(R))
+       return false;
+
+   if(data(R) > maximum || data(R) < minimum)  ///of its parent
+      return false;
+
+   ///this node identifies the property, so we check its children
+   return is_BST(LC(R),minimum,data(R)) && is_BST(RC(R),data(R),maximum);
+
+
+}
+
+int max_in_Tree(ptr R){
+  if(R==NULL)
+     return 0;
+
+  int Left = max_in_Tree(LC(R));
+  int Right = max_in_Tree(RC(R));
+
+  if(data(R) >= Left && data(R) >= Right)
+      return data(R);
+
+  if(Left >= data(R) && Left >= Right)
+      return Left;
+
+  if(Right >= data(R) && Right >= Left)
+      return Right;
+
+}
+
+int min_in_Tree(ptr R){
+   if(R==NULL)
+     return 0;
+
+  int Left = min_in_Tree(LC(R));
+  int Right = min_in_Tree(RC(R));
+
+  if(data(R) <= Left && data(R) <= Right)
+      return data(R);
+
+  if(Left <= data(R) && Left <= Right)
+      return Left;
+
+  if(Right <= data(R) && Right <= Left)
+      return Right;
+
+}
+
+int size_Binary_Tree(ptr R){
+   if(R==NULL)
+      return 0;
+   else
+      return 1+size_Binary_Tree(LC(R))+size_Binary_Tree(RC(R));
+
+
+}
+
+ptr largest_sub_BST(ptr R, int* size_subtree) {
+
+    if (R == NULL) {
+        *size_subtree = 0;
+        return NULL;
+    }
+
+    if (is_BST(R, INT_MIN, INT_MAX)) {
+        *size_subtree = size_Binary_Tree(R);
+        return R;
+    }
+
+
+    int left_size = 0, right_size = 0;
+    ptr left_largest = largest_sub_BST(LC(R), &left_size);
+    ptr right_largest = largest_sub_BST(RC(R), &right_size);
+
+
+    if(left_size== 0 && right_size==0){
+        *size_subtree=0;
+        return NULL;
+    }
+
+    if (left_size > right_size) {
+        *size_subtree = left_size;
+        return left_largest;
+    } else {
+        *size_subtree = right_size;
+        return right_largest;
+    }
+}
+
+#endif // TREES_LIB_H_INCLUDED
